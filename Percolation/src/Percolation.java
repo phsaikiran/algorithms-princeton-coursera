@@ -3,9 +3,9 @@ import edu.princeton.cs.algs4.WeightedQuickUnionUF;
 public class Percolation {
 
     private final int n;
-    private final boolean[][] mat;
+    private final boolean[] mat;
     private int openSites;
-    private final WeightedQuickUnionUF weightedQuickUnionUF;
+    private final WeightedQuickUnionUF weightedQuickUnionUF, weightedQuickUnionUF2;
 
     // creates n-by-n grid, with all sites initially blocked
     public Percolation(int n) {
@@ -13,15 +13,14 @@ public class Percolation {
             throw new IllegalArgumentException("n <= 0");
         }
         this.n = n;
-        this.mat = new boolean[n][n];
+        this.mat = new boolean[n * n];
         this.openSites = 0;
 
         weightedQuickUnionUF = new WeightedQuickUnionUF(n * n + 2);
+        weightedQuickUnionUF2 = new WeightedQuickUnionUF(n * n + 2);
 
-        for (int i = 0; i < n; i++) {
-            for (int j = 0; j < n; j++) {
-                mat[i][j] = false;
-            }
+        for (int i = 0; i < n * n; i++) {
+            mat[i] = false;
         }
     }
 
@@ -35,27 +34,32 @@ public class Percolation {
             throw new IllegalArgumentException("row <= 0 || col <= 0 || row > n || col > n");
         }
 
-        if (mat[row - 1][col - 1]) {
+        if (mat[rowColToIndex(row, col) - 1]) {
             return;
         }
-        mat[row - 1][col - 1] = true;
+        mat[rowColToIndex(row, col) - 1] = true;
         openSites += 1;
 
-        if (row - 2 >= 0 && mat[row - 2][col - 1]) {
+        if (row - 2 >= 0 && mat[rowColToIndex(row - 1, col) - 1]) {
             weightedQuickUnionUF.union(rowColToIndex(row, col), rowColToIndex(row - 1, col));
+            weightedQuickUnionUF2.union(rowColToIndex(row, col), rowColToIndex(row - 1, col));
         }
-        if (row < n && mat[row][col - 1]) {
+        if (row < n && mat[rowColToIndex(row + 1, col) - 1]) {
             weightedQuickUnionUF.union(rowColToIndex(row, col), rowColToIndex(row + 1, col));
+            weightedQuickUnionUF2.union(rowColToIndex(row, col), rowColToIndex(row + 1, col));
         }
-        if (col - 2 >= 0 && mat[row - 1][col - 2]) {
+        if (col - 2 >= 0 && mat[rowColToIndex(row, col - 1) - 1]) {
             weightedQuickUnionUF.union(rowColToIndex(row, col), rowColToIndex(row, col - 1));
+            weightedQuickUnionUF2.union(rowColToIndex(row, col), rowColToIndex(row, col - 1));
         }
-        if (col < n && mat[row - 1][col]) {
+        if (col < n && mat[rowColToIndex(row, col + 1) - 1]) {
             weightedQuickUnionUF.union(rowColToIndex(row, col), rowColToIndex(row, col + 1));
+            weightedQuickUnionUF2.union(rowColToIndex(row, col), rowColToIndex(row, col + 1));
         }
 
         if (row == 1) {
             weightedQuickUnionUF.union(rowColToIndex(row, col), 0);
+            weightedQuickUnionUF2.union(rowColToIndex(row, col), 0);
         }
         if (row == n) {
             weightedQuickUnionUF.union(rowColToIndex(row, col), n * n + 1);
@@ -67,7 +71,7 @@ public class Percolation {
         if (row <= 0 || col <= 0 || row > n || col > n) {
             throw new IllegalArgumentException("row <= 0 || col <= 0 || row > n || col > n");
         }
-        return mat[row - 1][col - 1];
+        return mat[rowColToIndex(row, col) - 1];
     }
 
     // is the site (row, col) full?
@@ -75,7 +79,7 @@ public class Percolation {
         if (row <= 0 || col <= 0 || row > n || col > n) {
             throw new IllegalArgumentException("row <= 0 || col <= 0 || row > n || col > n");
         }
-        return weightedQuickUnionUF.find(0) == weightedQuickUnionUF.find(rowColToIndex(row, col));
+        return weightedQuickUnionUF2.find(0) == weightedQuickUnionUF2.find(rowColToIndex(row, col));
     }
 
     // returns the number of open sites
