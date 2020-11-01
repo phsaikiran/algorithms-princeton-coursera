@@ -102,7 +102,7 @@ public class Deque<Item> implements Iterable<Item> {
     // remove and return the item from the front
     public Item removeFirst() {
         if (size == 0) {
-            throw new IllegalArgumentException("size == 0");
+            throw new NoSuchElementException("size == 0");
         }
         Node ptr = front;
         front = front.next;
@@ -119,7 +119,7 @@ public class Deque<Item> implements Iterable<Item> {
 //    // remove and return the item from the back
     public Item removeLast() {
         if (size == 0) {
-            throw new IllegalArgumentException("size == 0");
+            throw new NoSuchElementException("size == 0");
         }
         Node ptr = rear;
         rear = rear.previous;

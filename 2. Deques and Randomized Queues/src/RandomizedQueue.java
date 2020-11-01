@@ -11,12 +11,11 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
     private class RandomizedQueueIterator implements Iterator<Item> {
 
-        //private final RandomizedQueue<Item> randomizedQueue;
         private final Object[] data;
         private int s;
 
         public RandomizedQueueIterator() {
-            this.data = elementData;
+            this.data = elementData.clone();
             this.s = size;
         }
 
@@ -33,6 +32,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             int random = StdRandom.uniform(0, s);
             Item returnData = (Item) data[random];
             data[random] = data[s - 1];
+            data[s - 1] = null;
             s -= 1;
             return returnData;
         }
@@ -49,23 +49,15 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         size = 0;
     }
 
-    private RandomizedQueue(Object[] elementData, int size) {
-        this.elementData = new Object[size];
-        this.size = size;
-        System.arraycopy(elementData, 0, this.elementData, 0, size);
-    }
-
     // is the randomized queue empty?
     public boolean isEmpty() {
         return size == 0;
     }
 
-    private Object[] grow() {
-        int oldCapacity = elementData.length;
-        if (oldCapacity > 0 || elementData != EMPTY_ELEMENT_DATA) {
-            int newCapacity = oldCapacity * 2;
+    private Object[] resize(int newCapacity) {
+        if (elementData.length > 0 && elementData != EMPTY_ELEMENT_DATA) {
             Object[] newElementData = new Object[newCapacity];
-            System.arraycopy(elementData, 0, newElementData, 0, elementData.length);
+            System.arraycopy(elementData, 0, newElementData, 0, Math.min(newCapacity, elementData.length));
             return newElementData;
         } else {
             return elementData = new Object[1];
@@ -83,7 +75,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
             throw new IllegalArgumentException("item is null");
         }
         if (size == 0 || size == elementData.length) {
-            elementData = grow();
+            elementData = resize(elementData.length * 2);
         }
 
         elementData[size] = item;
@@ -101,9 +93,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         if (size == 0) {
             throw new NoSuchElementException("size == 0");
         }
+        if (size < elementData.length / 2) {
+            elementData = resize(elementData.length / 2);
+        }
+
         int random = StdRandom.uniform(0, size);
         Item returnData = (Item) elementData[random];
         elementData[random] = elementData[size - 1];
+        elementData[size - 1] = null;
         size -= 1;
         return returnData;
     }
@@ -125,6 +122,7 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
     // unit testing (required)
     public static void main(String[] args) {
         RandomizedQueue<String> randomizedQueue = new RandomizedQueue<>();
+        System.out.println(randomizedQueue.isEmpty());
 
         randomizedQueue.enqueue("s");
         randomizedQueue.enqueue("s1");
@@ -137,6 +135,8 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
         randomizedQueue.enqueue("s0");
         randomizedQueue.enqueue("s8");
         randomizedQueue.enqueue("s9");
+
+        System.out.println(randomizedQueue.size());
 
         System.out.println("-------------------------------");
 
@@ -185,6 +185,14 @@ public class RandomizedQueue<Item> implements Iterable<Item> {
 
         for (String s : randomizedQueue) {
             System.out.println(s);
+        }
+
+        System.out.println("-------------------------------");
+
+        for (String s : randomizedQueue) {
+            for (String ss : randomizedQueue) {
+                System.out.println(ss + ":" + s);
+            }
         }
     }
 
