@@ -75,11 +75,25 @@ public class Solver {
     private final int moves;
     private final SearchNode solution;
 
-    private SearchNode findSolution(Board initial, Board twinBoard) {
-        ArrayList<Board> visitedBoardList = new ArrayList<>();
-        MinPQ<SearchNode> minPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getBoard().manhattan() + o.getMoves()));
+    // find a solution to the initial board (using the A* algorithm)
+    public Solver(Board initial) {
+        if (initial == null) {
+            throw new IllegalArgumentException();
+        }
 
-        ArrayList<Board> visitedTwinBoardList = new ArrayList<>();
+        Board twinBoard = initial.twin();
+
+        this.solvable = false;
+        SearchNode reversed = findSolution(initial, twinBoard);
+        solution = reverse(reversed);
+        this.moves = reversed.getMoves();
+        if (reversed.getBoard().isGoal()) {
+            this.solvable = true;
+        }
+    }
+
+    private SearchNode findSolution(Board initial, Board twinBoard) {
+        MinPQ<SearchNode> minPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getBoard().manhattan() + o.getMoves()));
         MinPQ<SearchNode> twinMinPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getBoard().manhattan() + o.getMoves()));
 
         SearchNode firstNode = new SearchNode(initial, 0, null);
@@ -88,24 +102,21 @@ public class Solver {
         twinMinPQ.insert(firstTwinNode);
         while (true) {
             SearchNode searchNode = minPQ.delMin();
-            visitedBoardList.add(searchNode.getBoard());
-
             SearchNode searchTwinNode = twinMinPQ.delMin();
-            visitedTwinBoardList.add(searchTwinNode.getBoard());
 
             if (searchNode.getBoard().isGoal() || searchTwinNode.getBoard().isGoal()) {
                 return searchNode;
             }
 
             for (Board b : searchNode.getBoard().neighbors()) {
-                if (!visitedBoardList.contains(b)) {
+                if (searchNode.getPrevious() == null || !searchNode.getPrevious().getBoard().equals(b)) {
                     SearchNode s = new SearchNode(b, searchNode.getMoves() + 1, searchNode);
                     minPQ.insert(s);
                 }
             }
 
             for (Board b : searchTwinNode.getBoard().neighbors()) {
-                if (!visitedTwinBoardList.contains(b)) {
+                if (searchTwinNode.getPrevious() == null || !searchTwinNode.getPrevious().getBoard().equals(b)) {
                     SearchNode s = new SearchNode(b, searchTwinNode.getMoves() + 1, searchTwinNode);
                     twinMinPQ.insert(s);
                 }
@@ -124,30 +135,6 @@ public class Solver {
             node = node.getPrevious();
         }
         return rev;
-    }
-
-    // find a solution to the initial board (using the A* algorithm)
-    public Solver(Board initial) {
-        if (initial == null) {
-            throw new IllegalArgumentException();
-        }
-
-        Board twinBoard = initial.twin();
-
-        this.solvable = false;
-        SearchNode reversed = findSolution(initial, twinBoard);
-        solution = reverse(reversed);
-        this.moves = reversed.getMoves();
-//        System.out.println("Moves: " + this.moves);
-//        System.out.println(searchNode);
-        if (reversed.getBoard().isGoal()) {
-            this.solvable = true;
-        }
-
-//        System.out.println(Arrays.toString(this.solutionList));
-
-//        System.out.println(searchNode.getMoves());
-//        System.out.println(minPQ.size());
     }
 
     // is the initial board solvable? (see below)

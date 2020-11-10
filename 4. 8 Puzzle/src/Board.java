@@ -111,7 +111,7 @@ public class Board {
             this.possible = possible;
         }
 
-        private Board _next() {
+        private Board nextImpl() {
             int size = possible.size();
             int operation = possible.get(size - 1);
             possible.remove(size - 1);
@@ -160,7 +160,7 @@ public class Board {
                     if (!hasNext()) {
                         throw new NoSuchElementException();
                     }
-                    return _next();
+                    return nextImpl();
                 }
             };
         }
