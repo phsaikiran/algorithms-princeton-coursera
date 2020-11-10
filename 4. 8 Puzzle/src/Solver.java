@@ -2,7 +2,6 @@ import edu.princeton.cs.algs4.In;
 import edu.princeton.cs.algs4.MinPQ;
 import edu.princeton.cs.algs4.StdOut;
 
-import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.Iterator;
 import java.util.NoSuchElementException;
@@ -13,17 +12,20 @@ public class Solver {
         private final Board board;
         private final int moves;
         private SearchNode previous;
+        private final int manhattan;
 
         public SearchNode(Board board, int moves, SearchNode previous) {
             this.board = board;
             this.moves = moves;
             this.previous = previous;
+            this.manhattan = board.manhattan();
         }
 
         public SearchNode(SearchNode searchNode) {
             this.board = searchNode.board;
             this.moves = searchNode.moves;
             this.previous = null;
+            this.manhattan = board.manhattan();
         }
 
         public Board getBoard() {
@@ -42,9 +44,13 @@ public class Solver {
             this.previous = previous;
         }
 
+        public int getManhattan() {
+            return manhattan;
+        }
+
         @Override
         public String toString() {
-            return moves + ":" + board.manhattan() + ":" + board;
+            return moves + ":" + manhattan + ":" + board;
         }
 
         @Override
@@ -93,8 +99,8 @@ public class Solver {
     }
 
     private SearchNode findSolution(Board initial, Board twinBoard) {
-        MinPQ<SearchNode> minPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getBoard().manhattan() + o.getMoves()));
-        MinPQ<SearchNode> twinMinPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getBoard().manhattan() + o.getMoves()));
+        MinPQ<SearchNode> minPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getManhattan() + o.getMoves()));
+        MinPQ<SearchNode> twinMinPQ = new MinPQ<>(Comparator.comparingInt(o -> o.getManhattan() + o.getMoves()));
 
         SearchNode firstNode = new SearchNode(initial, 0, null);
         minPQ.insert(firstNode);
