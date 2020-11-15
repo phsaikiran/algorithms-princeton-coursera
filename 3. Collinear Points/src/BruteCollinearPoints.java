@@ -11,17 +11,19 @@ public class BruteCollinearPoints {
     private final LineSegment[] lineSegments;
 
     // finds all line segments containing 4 points
-    public BruteCollinearPoints(final Point[] points) {
-        if (points == null) {
+    public BruteCollinearPoints(final Point[] pointsArg) {
+        if (pointsArg == null) {
             throw new IllegalArgumentException();
         }
 
-        for (Point p : points) {
+        for (Point p : pointsArg) {
             if (p == null) {
                 throw new IllegalArgumentException("p == null");
             }
         }
 
+        Point[] points = new Point[pointsArg.length];
+        System.arraycopy(pointsArg, 0, points, 0, pointsArg.length);
         Arrays.sort(points, Point::compareTo);
 
         Point prev = null;
@@ -33,18 +35,22 @@ public class BruteCollinearPoints {
         }
 
         ArrayList<Point[]> pointList = new ArrayList<>();
-        for (Point p1 : points) {
-            for (Point p2 : points) {
-                for (Point p3 : points) {
-                    for (Point p4 : points) {
+        int length = points.length;
+        for (int a = 0; a < length; a++) {
+            Point p1 = points[a];
+            for (int b = a + 1; b < length; b++) {
+                Point p2 = points[b];
+                for (int c = b + 1; c < length; c++) {
+                    Point p3 = points[c];
+                    for (int d = c + 1; d < length; d++) {
+                        Point p4 = points[d];
+
                         if (p1 == null || p2 == null || p3 == null || p4 == null) {
                             throw new IllegalArgumentException();
                         }
-                        if (p1.slopeTo(p2) == p2.slopeTo(p3)
-                                && p2.slopeTo(p3) == p3.slopeTo(p4)
-                                && p1.compareTo(p2) < 0
-                                && p2.compareTo(p3) < 0
-                                && p3.compareTo(p4) < 0) {
+                        if (p1.slopeTo(p2) == p2.slopeTo(p3) && p2.slopeTo(p3) == p3.slopeTo(p4)) {
+//                            System.out.print(p1 + ":" + p2 + ":" + p3 + ":" + p4);
+//                            System.out.println();
                             boolean add = true;
                             for (Point[] pointArray : pointList) {
                                 if (pointArray[0].compareTo(p1) == 0 && p4.compareTo(pointArray[1]) == 0) {

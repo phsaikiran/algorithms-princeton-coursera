@@ -7,23 +7,26 @@ import java.util.Arrays;
 
 public class FastCollinearPoints {
 
-    private static final double EPSILON = 0;
     private final int segments;
     private final LineSegment[] lineSegments;
 
     // finds all line segments containing 4 or more points
-    public FastCollinearPoints(final Point[] points) {
-        if (points == null) {
+    public FastCollinearPoints(final Point[] pointsArg) {
+        if (pointsArg == null) {
             throw new IllegalArgumentException("points == null");
         }
 
-        for (Point p : points) {
+        for (Point p : pointsArg) {
             if (p == null) {
                 throw new IllegalArgumentException("p == null");
             }
         }
 
-        Arrays.sort(points, Point::compareTo);
+        Point[] pointsSorted = new Point[pointsArg.length];
+        Point[] points = new Point[pointsArg.length];
+        System.arraycopy(pointsArg, 0, pointsSorted, 0, pointsArg.length);
+        Arrays.sort(pointsSorted, Point::compareTo);
+        System.arraycopy(pointsSorted, 0, points, 0, pointsArg.length);
 //        System.out.println(Arrays.toString(points));
 
         Point prev = null;
@@ -43,7 +46,7 @@ public class FastCollinearPoints {
 //            System.out.println("-------------------------------------------------------------------");
 //            System.out.println("Selected point: " + p);
 //            System.out.println(Arrays.toString(points));
-//            Arrays.sort(points, p.slopeOrder());
+            Arrays.sort(points, p.slopeOrder());
 //            System.out.println(Arrays.toString(points));
 //            for (Point point : points) {
 //                System.out.print(p.slopeTo(point) + ",   ");
@@ -51,20 +54,9 @@ public class FastCollinearPoints {
 //            System.out.println();
 
             for (int j = 1; j < points.length; j++) {
-                if (prev != null && Math.abs(p.slopeTo(points[j]) - p.slopeTo(prev)) <= EPSILON) {
-//                    boolean continueLoop = false;
-//                    for (double slope : slopeList) {
-//                        if (Math.abs(p.slopeTo(prev) - slope) <= EPSILON) {
-//                            continueLoop = true;
-//                            break;
-//                        }
-//                    }
-//                    if (continueLoop) {
-//                        continue;
-//                    }
-
+                if (prev != null && p.slopeTo(points[j]) == p.slopeTo(prev)) {
                     int start = j - 1;
-                    while (j < points.length && Math.abs(p.slopeTo(points[j]) - p.slopeTo(prev)) <= EPSILON) {
+                    while (j < points.length && p.slopeTo(points[j]) == p.slopeTo(prev)) {
                         j++;
                     }
                     j--;
@@ -115,7 +107,8 @@ public class FastCollinearPoints {
                 prev = points[j];
             }
 
-            Arrays.sort(points, Point::compareTo);
+//            Arrays.sort(points, Point::compareTo);
+            System.arraycopy(pointsSorted, 0, points, 0, pointsArg.length);
         }
 
         ArrayList<LineSegment> solution = new ArrayList<>();
@@ -148,45 +141,6 @@ public class FastCollinearPoints {
 
     public static void main(String[] args) {
         // read the n points from a file
-//        Point[] points = {
-//                new Point(0, 0),
-//                new Point(1, 1),
-//                new Point(2, 2),
-//                new Point(3, 3),
-//                new Point(4, 4),
-//                new Point(5, 5),
-//                new Point(6, 6),
-//                new Point(7, 7),
-//                new Point(8, 8),
-//                new Point(9, 9),
-//
-//                new Point(16, 6),
-//                new Point(11, 21),
-//                new Point(44, 84),
-//                new Point(22, 42),
-//
-//                new Point(10, 20),
-//                new Point(20, 40),
-//                new Point(30, 60),
-//                new Point(40, 80),
-//
-//                new Point(10, 0),
-//                new Point(0, 10),
-//                new Point(3, 7),
-//                new Point(7, 3),
-//                new Point(20, 21),
-//                new Point(3, 4),
-//                new Point(14, 15),
-//                new Point(6, 7),
-//
-//                new Point(19000, 10000),
-//                new Point(18000, 10000),
-//                new Point(32000, 10000),
-//                new Point(21000, 10000),
-//                new Point(1234, 5678),
-//                new Point(14000, 10000)
-//        };
-
         In in = new In("input.txt");
         int n = in.readInt();
         Point[] points = new Point[n];
