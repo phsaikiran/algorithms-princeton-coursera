@@ -34,7 +34,7 @@ public class Point implements Comparable<Point> {
      */
     public void draw() {
         /* DO NOT MODIFY */
-        StdDraw.circle(x, y, 0.5);
+        StdDraw.point(x, y);
     }
 
     /**
@@ -61,7 +61,15 @@ public class Point implements Comparable<Point> {
      */
     public double slopeTo(Point that) {
         /* YOUR CODE HERE */
-        return (double) (that.y - this.y) / (that.x - this.x);
+        if (this.x == that.x && this.y == that.y) {
+            return Double.NEGATIVE_INFINITY;
+        } else if (this.y == that.y) {
+            return 0.0;
+        } else if (this.x == that.x) {
+            return Double.POSITIVE_INFINITY;
+        } else {
+            return (double) (that.y - this.y) / (that.x - this.x);
+        }
     }
 
     /**
@@ -110,5 +118,9 @@ public class Point implements Comparable<Point> {
      */
     public static void main(String[] args) {
         /* YOUR CODE HERE */
+        Point p1 = new Point(122, 420);
+        Point p2 = new Point(127, 421);
+
+        System.out.println(p1.slopeTo(p2));
     }
 }
